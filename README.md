@@ -8,7 +8,6 @@ Sistema de directorio de profesionales organizado en un monorepo con dos microse
   - `management-bot`: Bot de gestión (CRUD completo)
   - `query-bot`: Bot de consulta pública (solo lectura)
 - **Base de datos**: PostgreSQL
-- **Orquestación**: Docker Compose
 - **Stack**: Spring Boot 3 + Java 17
 
 ## Estructura del Proyecto
@@ -16,32 +15,58 @@ Sistema de directorio de profesionales organizado en un monorepo con dos microse
 ```
 telegram-directory/
 ├── management-bot/          # Microservicio de gestión
-├── query-bot/               # Microservicio de consulta
-├── docker-compose.yml       # Orquestación de servicios
+├── query-bot/              # Microservicio de consulta
 └── README.md
 ```
 
 ## Requisitos Previos
 
-- Docker y Docker Compose instalados
+- Java 17 o superior instalado
+- Maven instalado
+- PostgreSQL instalado y corriendo
 - Tokens de bots de Telegram (obtenidos desde @BotFather)
 
 ## Configuración
 
-1. Crea un archivo `.env` en la raíz del proyecto con las siguientes variables:
+### 1. Crear la base de datos
 
-```env
-MANAGEMENT_BOT_TOKEN=tu_token_del_bot_de_gestion
-MANAGEMENT_BOT_USERNAME=tu_bot_de_gestion
-QUERY_BOT_TOKEN=tu_token_del_bot_de_consulta
-QUERY_BOT_USERNAME=tu_bot_de_consulta
+Abre pgAdmin o tu cliente de PostgreSQL y crea la base de datos:
+
+```sql
+CREATE DATABASE telegram_directory;
 ```
 
-2. Levanta todos los servicios:
+### 2. Configurar credenciales y tokens
 
+Edita los archivos `application.properties` de cada microservicio:
+
+**management-bot/src/main/resources/application.properties:**
+- Ajusta `spring.datasource.password` si tu contraseña de PostgreSQL es diferente
+- Reemplaza `TU_TOKEN_DEL_BOT_DE_GESTION_AQUI` con el token real de tu bot de gestión
+- Reemplaza `TU_USERNAME_DEL_BOT_DE_GESTION_AQUI` con el username real (ej: `@MiBotGestion`)
+
+**query-bot/src/main/resources/application.properties:**
+- Ajusta `spring.datasource.password` si tu contraseña de PostgreSQL es diferente
+- Reemplaza `TU_TOKEN_DEL_BOT_DE_CONSULTA_AQUI` con el token real de tu bot de consulta
+- Reemplaza `TU_USERNAME_DEL_BOT_DE_CONSULTA_AQUI` con el username real (ej: `@MiBotConsulta`)
+
+### 3. Ejecutar los microservicios
+
+Abre **dos terminales** y ejecuta en cada una:
+
+**Terminal 1 - Management Bot:**
 ```bash
-docker-compose up -d
+cd management-bot
+mvn spring-boot:run
 ```
+
+**Terminal 2 - Query Bot:**
+```bash
+cd query-bot
+mvn spring-boot:run
+```
+
+¡Listo! Los bots deberían estar funcionando y conectados a Telegram.
 
 ## Comandos del Bot de Gestión (management-bot)
 
@@ -50,13 +75,27 @@ docker-compose up -d
 - `/delete <id>` - Elimina un profesional
 - `/list` - Lista todos los profesionales
 
+**Ejemplo:**
+```
+/add electricista | Juan Pérez | Rosario
+```
+
 ## Comandos del Bot de Consulta (query-bot)
 
 - `/findTrade <oficio>` - Busca profesionales por oficio
 - `/findCity <ciudad>` - Busca profesionales por ciudad
 - `/find <oficio> | <ciudad>` - Busca por oficio y ciudad
 
+**Ejemplos:**
+```
+/findTrade electricista
+/findCity Rosario
+/find electricista | Rosario
+```
+
 ## Modelo de Datos
+
+La tabla `professional` se crea automáticamente cuando ejecutas el management-bot por primera vez. Estructura:
 
 ```sql
 CREATE TABLE professional (
@@ -67,23 +106,16 @@ CREATE TABLE professional (
 );
 ```
 
-## Desarrollo
+## Verificar que todo funciona
 
-Para desarrollar localmente sin Docker:
+- **Management Bot**: `http://localhost:8080/actuator/health`
+- **Query Bot**: `http://localhost:8081/actuator/health`
 
-1. Asegúrate de tener PostgreSQL corriendo
-2. Configura las variables de entorno en tu IDE o sistema
-3. Ejecuta cada microservicio desde su directorio con `mvn spring-boot:run`
+Si ambos responden `{"status":"UP"}`, los servicios están corriendo correctamente.
 
-## Detener los Servicios
+## Notas
 
-```bash
-docker-compose down
-```
-
-Para eliminar también los volúmenes (datos de la base de datos):
-
-```bash
-docker-compose down -v
-```
-
+- El management-bot usa el puerto **8080**
+- El query-bot usa el puerto **8081**
+- La base de datos debe estar corriendo antes de iniciar los bots
+- Los tokens de Telegram se obtienen desde @BotFather en Telegram
