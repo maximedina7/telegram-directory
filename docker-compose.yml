@@ -1,0 +1,55 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: telegram-directory-postgres
+    environment:
+      POSTGRES_DB: telegram_directory
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  management-bot:
+    build:
+      context: ./management-bot
+      dockerfile: Dockerfile
+    container_name: telegram-directory-management-bot
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/telegram_directory
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
+      TELEGRAM_BOT_TOKEN: ${MANAGEMENT_BOT_TOKEN}
+      TELEGRAM_BOT_USERNAME: ${MANAGEMENT_BOT_USERNAME}
+    restart: unless-stopped
+
+  query-bot:
+    build:
+      context: ./query-bot
+      dockerfile: Dockerfile
+    container_name: telegram-directory-query-bot
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/telegram_directory
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
+      TELEGRAM_BOT_TOKEN: ${QUERY_BOT_TOKEN}
+      TELEGRAM_BOT_USERNAME: ${QUERY_BOT_USERNAME}
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+
