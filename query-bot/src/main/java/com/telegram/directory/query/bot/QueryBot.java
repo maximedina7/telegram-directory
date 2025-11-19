@@ -61,11 +61,22 @@ public class QueryBot extends TelegramLongPollingBot {
                     return handleFindCity(args);
                 case "/find":
                     return handleFind(args);
+                case "/findcategory":
+                    return handleFindCategory(args);
+                case "/findverified":
+                    return handleFindVerified();
+                case "/findtop":
+                    return handleFindTop(args);
                 default:
-                    return "Comandos disponibles:\n" +
-                           "/findTrade <oficio>\n" +
-                           "/findCity <ciudad>\n" +
-                           "/find <oficio> | <ciudad>";
+                    return """
+                           Comandos disponibles:
+                           /findTrade <oficio>
+                           /findCity <ciudad>
+                           /find <oficio> | <ciudad>
+                           /findCategory <nombre_categoria>
+                           /findVerified
+                           /findTop <rating_minimo>
+                           """;
             }
         } catch (Exception e) {
             return "Error: " + e.getMessage();
@@ -127,15 +138,7 @@ public class QueryBot extends TelegramLongPollingBot {
     private String formatResults(String header, List<Professional> professionals) {
         StringBuilder sb = new StringBuilder("🔍 Resultados de búsqueda (" + professionals.size() + "):\n");
         sb.append(header).append("\n\n");
-        
-        for (Professional p : professionals) {
-            sb.append("ID: ").append(p.getId())
-              .append(" | ").append(p.getTrade())
-              .append(" | ").append(p.getName())
-              .append(" | ").append(p.getCity())
-              .append("\n");
-        }
-        
+        professionals.forEach(p -> sb.append(formatProfessional(p)).append("\n"));
         return sb.toString();
     }
     
@@ -149,6 +152,61 @@ public class QueryBot extends TelegramLongPollingBot {
         } catch (TelegramApiException e) {
             e.printStackTrace();
         }
+    }
+
+    private String handleFindCategory(String args) {
+        if (args.trim().isEmpty()) {
+            return "Formato incorrecto. Use: /findCategory <nombre_categoria>";
+        }
+        String category = args.trim();
+        List<Professional> professionals = professionalService.findByCategory(category);
+        if (professionals.isEmpty()) {
+            return "🔍 No se encontraron profesionales en la categoría: " + category;
+        }
+        return formatResults("Categoría: " + category, professionals);
+    }
+
+    private String handleFindVerified() {
+        List<Professional> professionals = professionalService.findVerified();
+        if (professionals.isEmpty()) {
+            return "🔍 No hay profesionales verificados disponibles";
+        }
+        return formatResults("Profesionales verificados", professionals);
+    }
+
+    private String handleFindTop(String args) {
+        if (args.trim().isEmpty()) {
+            return "Formato incorrecto. Use: /findTop <rating_minimo>";
+        }
+        double minRating;
+        try {
+            minRating = Double.parseDouble(args.trim());
+        } catch (NumberFormatException e) {
+            return "Error: el rating mínimo debe ser un número";
+        }
+        List<Professional> professionals = professionalService.findTopRated(minRating);
+        if (professionals.isEmpty()) {
+            return "🔍 No se encontraron profesionales con rating >= " + minRating;
+        }
+        return formatResults("Rating mínimo: " + minRating, professionals);
+    }
+
+    private String formatProfessional(Professional p) {
+        String category = p.getCategory() != null ? p.getCategory().getName() : "Sin categoría";
+        return "ID: " + p.getId()
+                + " | " + safe(p.getTrade())
+                + " | " + safe(p.getName())
+                + " | " + safe(p.getCity())
+                + " | Tel: " + safe(p.getPhone())
+                + " | Email: " + safe(p.getEmail())
+                + " | Exp: " + p.getExperienceYears() + " años"
+                + " | Rating: " + p.getRating()
+                + " | Verificado: " + (p.isVerified() ? "Sí" : "No")
+                + " | Categoría: " + category;
+    }
+
+    private String safe(String value) {
+        return (value == null || value.isEmpty()) ? "-" : value;
     }
 }
 

@@ -30,5 +30,17 @@ public class ProfessionalService {
     public List<Professional> findByTradeAndCity(String trade, String city) {
         return repository.findByTradeAndCity(trade, city);
     }
+
+    public List<Professional> findByCategory(String category) {
+        return repository.findByCategoryName(category);
+    }
+
+    public List<Professional> findVerified() {
+        return repository.findByVerifiedTrue();
+    }
+
+    public List<Professional> findTopRated(double minRating) {
+        return repository.findByRatingGreaterThanEqual(minRating);
+    }
 }
 

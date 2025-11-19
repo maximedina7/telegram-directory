@@ -6,5 +6,7 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface ProfessionalRepository extends JpaRepository<Professional, Long> {
+
+    boolean existsByCategory_Id(Long categoryId);
 }
 

@@ -17,5 +17,12 @@ public interface ProfessionalRepository extends JpaRepository<Professional, Long
     
     @Query("SELECT p FROM Professional p WHERE LOWER(p.trade) = LOWER(:trade) AND LOWER(p.city) = LOWER(:city)")
     List<Professional> findByTradeAndCity(@Param("trade") String trade, @Param("city") String city);
+
+    @Query("SELECT p FROM Professional p WHERE LOWER(p.category.name) = LOWER(:category)")
+    List<Professional> findByCategoryName(@Param("category") String category);
+
+    List<Professional> findByVerifiedTrue();
+
+    List<Professional> findByRatingGreaterThanEqual(double rating);
 }
 
