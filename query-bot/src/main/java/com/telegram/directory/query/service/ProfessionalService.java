@@ -31,8 +31,8 @@ public class ProfessionalService {
         return repository.findByTradeAndCity(trade, city);
     }
 
-    public List<Professional> findByCategory(String category) {
-        return repository.findByCategoryName(category);
+    public List<Professional> findByCategory(String categoryName) {
+        return repository.findByCategoryName(categoryName);
     }
 
     public List<Professional> findVerified() {

@@ -10,16 +10,16 @@ import java.util.List;
 
 @Repository
 public interface ProfessionalRepository extends JpaRepository<Professional, Long> {
-    
+
     List<Professional> findByTradeIgnoreCase(String trade);
-    
+
     List<Professional> findByCityIgnoreCase(String city);
-    
+
     @Query("SELECT p FROM Professional p WHERE LOWER(p.trade) = LOWER(:trade) AND LOWER(p.city) = LOWER(:city)")
     List<Professional> findByTradeAndCity(@Param("trade") String trade, @Param("city") String city);
 
-    @Query("SELECT p FROM Professional p WHERE LOWER(p.category.name) = LOWER(:category)")
-    List<Professional> findByCategoryName(@Param("category") String category);
+    @Query("SELECT p FROM Professional p WHERE LOWER(p.category.name) = LOWER(:name)")
+    List<Professional> findByCategoryName(@Param("name") String name);
 
     List<Professional> findByVerifiedTrue();
 

@@ -1,13 +1,6 @@
 package com.telegram.directory.query.model;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.DecimalMax;
-import jakarta.validation.constraints.DecimalMin;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
 
 @Entity
 @Table(name = "professional")
@@ -17,61 +10,47 @@ public class Professional {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotBlank
     @Column(nullable = false)
     private String trade;
 
-    @NotBlank
     @Column(nullable = false)
     private String name;
 
-    @NotBlank
     @Column(nullable = false)
     private String city;
 
-    @NotBlank
-    @Column(nullable = false, length = 30)
+    @Column(length = 50)
     private String phone;
 
-    @NotBlank
-    @Email
-    @Column(nullable = false)
+    @Column(length = 150)
     private String email;
 
-    @Min(0)
-    @Max(60)
     @Column(name = "experience_years")
     private int experienceYears;
 
-    @Size(max = 500)
     @Column(length = 500)
     private String description;
 
-    @Column(nullable = false)
     private boolean verified;
 
-    @DecimalMin("0.0")
-    @DecimalMax("5.0")
-    @Column(nullable = false)
     private double rating;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id")
     private Category category;
 
     public Professional() {
     }
 
-    public Professional(String trade,
-                        String name,
-                        String city,
-                        String phone,
-                        String email,
-                        int experienceYears,
-                        String description,
-                        boolean verified,
-                        double rating,
-                        Category category) {
+    public Professional(String trade, String name, String city) {
+        this.trade = trade;
+        this.name = name;
+        this.city = city;
+    }
+
+    public Professional(String trade, String name, String city, String phone, String email,
+                        int experienceYears, String description, boolean verified,
+                        double rating, Category category) {
         this.trade = trade;
         this.name = name;
         this.city = city;
@@ -96,82 +75,97 @@ public class Professional {
         return trade;
     }
 
-    public String getName() {
-        return name;
-    }
-
-    public String getCity() {
-        return city;
-    }
-
-    public String getPhone() {
-        return phone;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public int getExperienceYears() {
-        return experienceYears;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public boolean isVerified() {
-        return verified;
-    }
-
-    public double getRating() {
-        return rating;
-    }
-
-    public Category getCategory() {
-        return category;
-    }
-
     public void setTrade(String trade) {
         this.trade = trade;
+    }
+
+    public String getName() {
+        return name;
     }
 
     public void setName(String name) {
         this.name = name;
     }
 
+    public String getCity() {
+        return city;
+    }
+
     public void setCity(String city) {
         this.city = city;
+    }
+
+    public String getPhone() {
+        return phone;
     }
 
     public void setPhone(String phone) {
         this.phone = phone;
     }
 
+    public String getEmail() {
+        return email;
+    }
+
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public int getExperienceYears() {
+        return experienceYears;
     }
 
     public void setExperienceYears(int experienceYears) {
         this.experienceYears = experienceYears;
     }
 
+    public String getDescription() {
+        return description;
+    }
+
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public boolean isVerified() {
+        return verified;
     }
 
     public void setVerified(boolean verified) {
         this.verified = verified;
     }
 
+    public double getRating() {
+        return rating;
+    }
+
     public void setRating(double rating) {
         this.rating = rating;
+    }
+
+    public Category getCategory() {
+        return category;
     }
 
     public void setCategory(Category category) {
         this.category = category;
     }
+
+    @Override
+    public String toString() {
+        return "Professional{" +
+                "id=" + id +
+                ", trade='" + trade + '\'' +
+                ", name='" + name + '\'' +
+                ", city='" + city + '\'' +
+                ", phone='" + phone + '\'' +
+                ", email='" + email + '\'' +
+                ", experienceYears=" + experienceYears +
+                ", description='" + description + '\'' +
+                ", verified=" + verified +
+                ", rating=" + rating +
+                ", category=" + (category != null ? category.getId() : null) +
+                '}';
+    }
 }
-
-
 

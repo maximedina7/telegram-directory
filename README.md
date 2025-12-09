@@ -5,8 +5,8 @@ Sistema de directorio de profesionales organizado en un monorepo con dos microse
 ## Arquitectura
 
 - **Monorepo** con dos microservicios:
-- `management-bot`: Bot de gestión (CRUD completo, administración de categorías y atributos avanzados)
-- `query-bot`: Bot de consulta pública (solo lectura, búsquedas enriquecidas)
+  - `management-bot`: Bot de gestión (CRUD completo)
+  - `query-bot`: Bot de consulta pública (solo lectura)
 - **Base de datos**: PostgreSQL
 - **Stack**: Spring Boot 3 + Java 17
 
@@ -68,46 +68,29 @@ mvn spring-boot:run
 
 ¡Listo! Los bots deberían estar funcionando y conectados a Telegram.
 
+## Comandos del Bot de Gestión (management-bot)
+
 - `/add <oficio> | <nombre> | <ciudad>` - Agrega un profesional
 - `/update <id> | <oficio> | <nombre> | <ciudad>` - Actualiza un profesional
 - `/delete <id>` - Elimina un profesional
 - `/list` - Lista todos los profesionales
-- `/addCategory <nombre> | <descripcion>` - Crea una categoría
-- `/listCategories` - Lista las categorías disponibles
-- `/deleteCategory <id>` - Elimina una categoría sin profesionales asociados
 
 **Ejemplo:**
 ```
-/add electricista | Juan Pérez | Rosario | +54 341 5551234 | juan@mail.com | 8 | Especialista en instalaciones residenciales | true | 4.8 | 1
+/add electricista | Juan Pérez | Rosario
 ```
-
-**Campos esperados (en orden):**
-- `oficio`, `nombre`, `ciudad`
-- `tel`: teléfono de contacto
-- `email`: correo de contacto
-- `años exp`: años de experiencia (entero)
-- `descripcion`: breve descripción del servicio (hasta 500 caracteres)
-- `verificado`: `true/false`
-- `rating`: número entre 0 y 5
-- `categoriaId`: opcional, referenciado a `/listCategories`
 
 ## Comandos del Bot de Consulta (query-bot)
 
 - `/findTrade <oficio>` - Busca profesionales por oficio
 - `/findCity <ciudad>` - Busca profesionales por ciudad
 - `/find <oficio> | <ciudad>` - Busca por oficio y ciudad
-- `/findCategory <nombre_categoria>` - Busca por categoría
-- `/findVerified` - Lista solo profesionales verificados
-- `/findTop <rating_minimo>` - Lista profesionales con rating superior al valor indicado
 
 **Ejemplos:**
 ```
 /findTrade electricista
 /findCity Rosario
 /find electricista | Rosario
-/findCategory electricistas certificados
-/findVerified
-/findTop 4.5
 ```
 
 ## Modelo de Datos
@@ -115,24 +98,11 @@ mvn spring-boot:run
 La tabla `professional` se crea automáticamente cuando ejecutas el management-bot por primera vez. Estructura:
 
 ```sql
-CREATE TABLE category (
-    id BIGSERIAL PRIMARY KEY,
-    name VARCHAR(120) UNIQUE NOT NULL,
-    description VARCHAR(500)
-);
-
 CREATE TABLE professional (
     id BIGSERIAL PRIMARY KEY,
     trade VARCHAR(255) NOT NULL,
     name VARCHAR(255) NOT NULL,
-    city VARCHAR(255) NOT NULL,
-    phone VARCHAR(30) NOT NULL,
-    email VARCHAR(255) NOT NULL,
-    experience_years INTEGER DEFAULT 0,
-    description VARCHAR(500),
-    verified BOOLEAN DEFAULT FALSE,
-    rating DOUBLE PRECISION DEFAULT 0,
-    category_id BIGINT REFERENCES category(id)
+    city VARCHAR(255) NOT NULL
 );
 ```
 
