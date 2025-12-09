@@ -8,7 +8,7 @@ Sistema de directorio de profesionales organizado en un monorepo con dos microse
   - `management-bot`: Bot de gestión (CRUD completo)
   - `query-bot`: Bot de consulta pública (solo lectura)
 - **Base de datos**: PostgreSQL
-- **Stack**: Spring Boot 3 + Java 17
+- **Stack**: Spring Boot 3 + Java 21
 
 ## Estructura del Proyecto
 
